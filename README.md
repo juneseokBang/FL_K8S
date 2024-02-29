@@ -1,5 +1,5 @@
 # FL_K8S
-Implementing K8S with Jetson TX2 for Federated Learning
+Implementing K8S with Jetson TX2 for Federated Learning with Adaptive Dataset Management
 
 ## Prerequisites
 Ensure the following prerequisites are met:
