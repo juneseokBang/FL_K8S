@@ -64,12 +64,14 @@ class Client(object):
     def adm_algorithm_1(self, vn):
         self.label_number = []
         trainset = []
-        vn = round(vn, 3)
+        delta = 1
+        vn = float(round(vn, 2))
 
         # 각 값의 길이를 알아내기
         # 값의 개수의 합 계산
         total_values_count = sum(len(value) for value in self.number_data.values())
-        # print(total_values_count)
+
+        reduction = [0 for c in range(10)]
 
         # 값의 개수가 가장 많은 키 찾기
         sorted_keys = sorted(self.number_data, 
@@ -78,31 +80,25 @@ class Client(object):
 
         # 해당 키의 값 개수 구하기
         max_value_count = len(self.number_data[sorted_keys[0]])
-        # print(max_value_count)
-        second_max_value_count = len(self.number_data[sorted_keys[1]])
-        # print(second_max_value_count)
+        reduction_level = max_value_count - delta
 
-        # print(len(self.number_data[0]))
-        # print(label_importance * 10 * vn)
-        for c in range(10):
-            num_data = len(self.number_data[c]) # 해당 라벨의 샘플 개수
-            # print(num_data)
-            P_ratio = 0
-            if vn < 1.0:
-                if c == sorted_keys[0]:
-                    P_ratio = num_data * vn * \
-                        ((second_max_value_count / total_values_count)-(num_data / total_values_count))
+        # print(vn)
+        # print(total_values_count * vn)
+        while int(total_values_count * vn) != (total_values_count - sum(reduction)):
+            for c in range(10):
+                num_data = len(self.number_data[c]) # 해당 라벨의 샘플 개수
+                if num_data - reduction_level >= 0:
+                    reduction[c] = num_data - reduction_level
                 else:
-                    P_ratio = num_data * vn * \
-                        ((max_value_count / total_values_count)-(num_data / total_values_count))
-            
-            reduced = int(num_data * vn + P_ratio)
-            
-            # break
+                    reduction[c] = 0
+            reduction_level = reduction_level - delta
+
+        for c in range(10):
+            reduced = len(self.number_data[c]) - reduction[c]
             extract = self.number_data[c][:reduced]
-            # extract = self.number_data[c][:5]
             self.label_number.append(len(extract))
-            trainset.extend(extract)
+        
+        trainset.extend(extract)
 
         # 초기화
         torch.save(trainset, 'data.pth')
